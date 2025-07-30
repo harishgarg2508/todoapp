@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getTasks } from "../thunks/getTasks.thunk";
 import { setTaskCompleted } from "../thunks/setTaskCompleted.thunk";
+import { deleteTask } from "../thunks/deleteTask.thunk";
 
 interface Task {
   id: number;
@@ -8,7 +9,7 @@ interface Task {
   description: string;
   startTime: string;
   endTime: string;
-  status: "pending" | "completed"; 
+  status: "pending" | "completed";
 }
 
 interface TaskState {
@@ -44,6 +45,10 @@ const taskSlice = createSlice({
     builder.addCase(getTasks.rejected, (state, action) => {
       state.error = "An unknown error occurred";
       state.isLoading = false;
+    });
+
+    builder.addCase(deleteTask.fulfilled, (state, action) => {
+      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
     });
 
     builder.addCase(setTaskCompleted.fulfilled, (state, action) => {

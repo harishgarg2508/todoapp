@@ -19,9 +19,18 @@ import { getTasks } from "@/app/redux/thunks/getTasks.thunk";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setTaskCompleted } from "../redux/thunks/setTaskCompleted.thunk";
 import { toast, Toaster } from "sonner";
+import AssignUserDialog from "@/components/assignUserDialog";
+import { deleteTask } from "../redux/thunks/deleteTask.thunk";
+import CreateTaskDialog from "@/components/createTaskDialog";
+import { logout } from "../redux/slices/user.slice";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+
   const dispatch = useAppDispatch();
+    const router = useRouter();
   const { tasks, isLoading } = useAppSelector((state) => state.task);
   const { userId } = useAppSelector((state) => state.user);
   const count = tasks.length;
@@ -44,6 +53,12 @@ export default function DashboardPage() {
       })
     );
   };
+  const handleDeleteTask = (taskId: number) => {
+    dispatch(deleteTask(taskId))
+      .unwrap()
+      .then(() => toast.success("Task deleted successfully"))
+      .catch(() => toast.error("Failed to delete task"));
+  };
 
   const [taskType, setTaskType] = useState<"created" | "assigned">("created");
   const [filters, setFilters] = useState({
@@ -52,6 +67,14 @@ export default function DashboardPage() {
     endTime: "",
     page: 1,
   });
+
+
+    const handleLogout = () => {
+        dispatch(logout());
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        router.push("/login");
+        toast.success("Logged out successfully");
+    };
 
   const debouncedDispatch = useCallback(
     debounce((queryFilters) => {
@@ -137,10 +160,27 @@ export default function DashboardPage() {
 
   return (
     <Box p={{ xs: 2, sm: 3, md: 4 }}>
+        <Stack direction="row" justifyContent={"space-between"} gap={8}>
+
       <Typography variant="h4" fontWeight="bold" mb={3}>
         Task Dashboard
+        
       </Typography>
+      <Stack direction="row" spacing={1}>
 
+
+      <Button variant="contained" color="warning" onClick={()=>handleLogout()}>Logout</Button>
+      <Button variant="contained" onClick={() => setTaskDialogOpen(true)}>
+        Create Task
+      </Button>
+      </Stack>
+
+      <CreateTaskDialog
+        open={taskDialogOpen}
+        onClose={() => setTaskDialogOpen(false)}
+      />
+
+        </Stack>
       {/* Task Type Toggle */}
       <ToggleButtonGroup
         value={taskType}
@@ -151,6 +191,8 @@ export default function DashboardPage() {
         <ToggleButton value="created">Created Tasks</ToggleButton>
         <ToggleButton value="assigned">Assigned Tasks</ToggleButton>
       </ToggleButtonGroup>
+
+      
 
       <Card variant="outlined" sx={{ mb: 4, p: 2 }}>
         <CardContent>
@@ -240,9 +282,22 @@ export default function DashboardPage() {
                         >
                           Edit Task
                         </Button>
-                        <Button variant="outlined" color="secondary">
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          sx={{ mr: 2 }}
+                          onClick={() => handleDeleteTask(task.id)}
+                        >
+                          Delete Task
+                        </Button>
+                        <Button onClick={() => setAssignDialogOpen(true)}>
                           Assign Users
                         </Button>
+                        <AssignUserDialog
+                          open={assignDialogOpen}
+                          onClose={() => setAssignDialogOpen(false)}
+                          taskId={task.id}
+                        />
                       </Box>
                     ) : (
                       <Box mt={2}>

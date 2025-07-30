@@ -19,7 +19,7 @@ export class User {
     @OneToMany(()=>Task,task=>task.user)
     tasks:Task[]
 
-    @OneToMany(()=>AssignedTask,assignedTask=>assignedTask.user)
+    @OneToMany(()=>AssignedTask,assignedTask=>assignedTask.user,{cascade:true})
     assignedTasks:AssignedTask[]
 
 }

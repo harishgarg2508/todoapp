@@ -35,6 +35,7 @@ export const LoginSchema = z.object({
 
 export const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL ,
+   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

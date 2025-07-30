@@ -7,10 +7,11 @@
 
   import userReducer from '@/app/redux/slices/user.slice';
   import taskReducer from '@/app/redux/slices/task.slice';
-
+  import searchUsersReducer from '@/app/redux/slices/getAssigne.slice'; 
   const rootReducer = combineReducers({
     user: userReducer,
     task:taskReducer,
+    userSearch: searchUsersReducer, 
   });
 
   export type RootState = ReturnType<typeof rootReducer>;

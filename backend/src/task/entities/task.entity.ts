@@ -23,7 +23,7 @@ export class Task {
     @ManyToOne(()=>User,user=>user.tasks)
     user:User
 
-    @OneToMany(()=>AssignedTask,assignedTask=>assignedTask.task)
+    @OneToMany(()=>AssignedTask,assignedTask=>assignedTask.task,{cascade:true})
     assignedTasks:AssignedTask[]
 
 }
