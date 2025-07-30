@@ -25,6 +25,15 @@ export class AssignedTaskService {
     return this.assignedTaskRepository.createAssignedTask(user, task);
   }
 
+  async markAsCompleted(id: number) {
+    const assignedTask = await this.assignedTaskRepository.findOneBy({ id });
+    if (!assignedTask) {
+      throw new NotFoundException('Assigned task not found');
+    }
+    return this.assignedTaskRepository.markAsCompleted(assignedTask);
+  }
+
+
   findAll() {
     return `This action returns all assignedTask`;
   }

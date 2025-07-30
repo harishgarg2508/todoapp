@@ -1,20 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,Query, Req, UseGuards, } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskFilterDto } from './dto/task-filter.dto';
+import { AuthGuard } from '../gaurds/auth.gaurd';
+import { Request } from 'express';
 
+interface RequestWithUser extends Request {
+  user: { id: string };
+}
+
+@UseGuards(AuthGuard)
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService,) {}
 
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.createTask(createTaskDto);
+  create(@Req() req: RequestWithUser, @Body() createTaskDto: CreateTaskDto) {
+    const userId = req.user.id;
+    return this.taskService.createTask(createTaskDto,+userId);
   }
-
   @Get()
-  findAll() {
-    return this.taskService.findAll();
+  getAllTasks(@Req() req: RequestWithUser, @Query() query: TaskFilterDto) {
+    const userId = req.user.id;
+    const { page = 1, ...filters } = query;
+    return this.taskService.getAllTasks(+userId, filters, page);
   }
 
   @Get(':id')

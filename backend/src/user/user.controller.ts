@@ -1,8 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Request } from 'express';
+import { AuthGuard } from 'src/gaurds/auth.gaurd';
 
+interface RequestWithUser extends Request {
+  user: { id: number };
+}
+@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -12,9 +18,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+    @Get()
+  findAllExcludingLoginUser(@Req() req: RequestWithUser,@Query('search') search?: string,
+  ) {
+    const userId = req.user.id;
+    return this.userService.findAllExcludingLoginUser(userId, search);
   }
 
   @Get(':id')

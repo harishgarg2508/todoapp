@@ -19,7 +19,7 @@ const rawDataSourceOptions = {
     synchronize: false,
     migrationsRun: false, 
     migrationsTableName: 'migrations',
-    logging:['query'],
+    logging:false,
     entities: [User,Task,AssignedTask],
     seeds: ['dist/seeds/**/*.js'],
     migrations: ['dist/migrations/*.js'],

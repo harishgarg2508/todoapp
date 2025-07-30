@@ -14,6 +14,9 @@ export class AssignedTask {
     @ManyToOne(()=>User,user=>user.assignedTasks)
     user:User
 
+    @Column({default:false})
+    isCompleted:boolean
+
 
 
 }

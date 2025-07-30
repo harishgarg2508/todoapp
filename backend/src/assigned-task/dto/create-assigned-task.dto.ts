@@ -1,4 +1,4 @@
-import { IsNumber, IsNotEmpty, IsPositive } from "class-validator"
+import { IsNumber, IsNotEmpty, IsPositive, IsBoolean } from "class-validator"
 
 export class CreateAssignedTaskDto {
 
@@ -11,4 +11,8 @@ export class CreateAssignedTaskDto {
     @IsNotEmpty()
     @IsPositive()
     taskId: number
+
+    @IsNotEmpty()
+    @IsBoolean()
+    isCompleted: boolean
 }

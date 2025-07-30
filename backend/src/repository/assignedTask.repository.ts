@@ -31,4 +31,8 @@ export class AssignedTaskRepository extends Repository<AssignedTask> {
         return this.delete(id);
     }
 
+    async markAsCompleted(assignedTask: AssignedTask) {
+        assignedTask.isCompleted = true;
+        return this.save(assignedTask);
+    }
 }

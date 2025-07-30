@@ -1,14 +1,17 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-
+import { IsString, IsNotEmpty, IsDateString, ValidateNested, IsArray, IsInt, } from 'class-validator';
 export class CreateTaskDto {
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @IsString()
+  @IsNotEmpty()
   description: string;
 
-  @IsArray()
-  @IsNumber({}, { each: true })
-  userIds: number[];
+  @IsDateString()
+  startTime: string;
+
+  @IsDateString()
+  endTime: string;
+
 }

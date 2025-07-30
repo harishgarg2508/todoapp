@@ -1,5 +1,5 @@
 
-import { IsBoolean, IsDate, IsNumber, IsOptional, IsString, Min, min } from "class-validator"
+import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, Min, min } from "class-validator"
 
 export class SignUpDto {
 
@@ -12,7 +12,7 @@ export class SignUpDto {
     email: string
 
     @IsString()
-    @Min(3, { message: "must be atleast 3 character long" })
+    @IsNotEmpty()
     password: string
 
 }
