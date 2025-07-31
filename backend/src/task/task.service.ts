@@ -24,8 +24,16 @@ export class TaskService {
     return this.taskRepository.getAllTasks(userId, filters, page);
   }
 
-  findOne(id: number) {
-    return this.taskRepository.findOneBy({id});
+  async updateTask(id: number, updateTaskDto: Partial<CreateTaskDto>) {
+    const task = await this.taskRepository.findOneBy({ id });
+    if (!task) {
+      throw new NotFoundException(`Task with id ${id} not found`);
+    }
+    return this.taskRepository.update(id, updateTaskDto);
+  }
+  
+  findTaskById(id: number) {
+    return this.taskRepository.findTaskById(id);
   }
 
   update(id: number, updateTaskDto: UpdateTaskDto) {

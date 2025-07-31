@@ -1,6 +1,5 @@
 "use client";
 import Pagination from "@mui/material/Pagination";
-
 import { useEffect, useState, useCallback } from "react";
 import {
   Box,
@@ -25,12 +24,23 @@ import CreateTaskDialog from "@/components/createTaskDialog";
 import { logout } from "../redux/slices/user.slice";
 import { useRouter } from "next/navigation";
 
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  status: "pending" | "completed";
+}
+
 export default function DashboardPage() {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const dispatch = useAppDispatch();
-    const router = useRouter();
+  const router = useRouter();
   const { tasks, isLoading } = useAppSelector((state) => state.task);
   const { userId } = useAppSelector((state) => state.user);
   const count = tasks.length;
@@ -68,20 +78,19 @@ export default function DashboardPage() {
     page: 1,
   });
 
-
-    const handleLogout = () => {
-        dispatch(logout());
-        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        router.push("/login");
-        toast.success("Logged out successfully");
-    };
+  const handleLogout = () => {
+    dispatch(logout());
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push("/login");
+    toast.success("Logged out successfully");
+  };
 
   const debouncedDispatch = useCallback(
     debounce((queryFilters) => {
       const combinedFilters = {
         ...queryFilters,
-        creatorId: taskType === "created" ? userId : undefined,
-        assigneeId: taskType === "assigned" ? userId : undefined,
+        creatorId: taskType === "created" ? Number(userId) : undefined,
+        assigneeId: taskType === "assigned" ? Number(userId) : undefined,
       };
       dispatch(getTasks(combinedFilters));
     }, 500),
@@ -146,6 +155,16 @@ export default function DashboardPage() {
     );
   };
 
+  const handleOpenEditDialog = (task: Task) => {
+    setEditingTask(task);
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditingTask(null);
+  };
+
   useEffect(() => {
     if (userId) {
       dispatch(
@@ -160,39 +179,42 @@ export default function DashboardPage() {
 
   return (
     <Box p={{ xs: 2, sm: 3, md: 4 }}>
-        <Stack direction="row" justifyContent={"space-between"} gap={8}>
-
-      <Typography variant="h4" fontWeight="bold" mb={3}>
-        Task Dashboard
-        
-      </Typography>
-      <Stack direction="row" spacing={1}>
-
-
-      <Button variant="contained" color="warning" onClick={()=>handleLogout()}>Logout</Button>
-      <Button variant="contained" onClick={() => setTaskDialogOpen(true)}>
-        Create Task
-      </Button>
+      <Stack direction="row" justifyContent={"space-between"} gap={8}>
+        <Typography variant="h4" fontWeight="bold" mb={3}>
+          Task Dashboard
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          <Button variant="contained" color="warning" onClick={() => handleLogout()}>
+            Logout
+          </Button>
+          <Button variant="contained" onClick={() => setCreateDialogOpen(true)}>
+            Create Task
+          </Button>
+        </Stack>
       </Stack>
 
       <CreateTaskDialog
-        open={taskDialogOpen}
-        onClose={() => setTaskDialogOpen(false)}
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
       />
 
-        </Stack>
-      {/* Task Type Toggle */}
+      {editingTask && (
+          <CreateTaskDialog
+            open={editDialogOpen}
+            onClose={handleCloseEditDialog}
+            initialData={editingTask}
+          />
+      )}
+
       <ToggleButtonGroup
         value={taskType}
         exclusive
         onChange={handleTaskTypeChange}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mt: 3 }}
       >
         <ToggleButton value="created">Created Tasks</ToggleButton>
         <ToggleButton value="assigned">Assigned Tasks</ToggleButton>
       </ToggleButtonGroup>
-
-      
 
       <Card variant="outlined" sx={{ mb: 4, p: 2 }}>
         <CardContent>
@@ -243,7 +265,6 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Task List */}
       {isLoading ? (
         <Box display="flex" justifyContent="center" mt={5}>
           <CircularProgress />
@@ -252,7 +273,7 @@ export default function DashboardPage() {
         <>
           <Stack spacing={2}>
             {tasks.length > 0 ? (
-              tasks.map((task: any) => (
+              tasks.map((task: Task) => (
                 <Card key={task.id} variant="outlined">
                   <CardContent>
                     <Typography variant="h6">{task.title}</Typography>
@@ -279,6 +300,7 @@ export default function DashboardPage() {
                           variant="outlined"
                           color="primary"
                           sx={{ mr: 2 }}
+                          onClick={() => handleOpenEditDialog(task)}
                         >
                           Edit Task
                         </Button>

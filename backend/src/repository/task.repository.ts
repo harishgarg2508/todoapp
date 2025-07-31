@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from 'src/task/dto/create-task.dto';
 import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -92,5 +92,18 @@ export class TaskRepository extends Repository<Task> {
       .getMany();
 
     return { tasks, totalCount };
+  }
+
+  async findTaskById(id: number){
+    const task = await this.findOne({
+      where: { id },
+      relations: ['user', 'assignedTasks', 'assignedTasks.user'],
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with id ${id} not found`);
+    }
+
+    return task;
   }
 }
