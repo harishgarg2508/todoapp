@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskRepository } from 'src/repository/task.repository';
@@ -13,10 +13,30 @@ export class TaskService {
     private readonly userRepository: UserRepository
   ) {}
   async createTask(createTaskDto: CreateTaskDto, userId: number) {
+
+
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
+
+
+    const { startTime, endTime, ...taskData } = createTaskDto;
+
+    const now = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if (start > end) {
+      throw new BadRequestException('Start time cannot be greater than end time');
+    }
+    if (start < now) {
+      throw new BadRequestException('Start time cannot be in the past');
+    }
+    if (end < now) {
+      throw new BadRequestException('End time cannot be in the past');
+    }
+
     return this.taskRepository.createTask(createTaskDto, user);
   }
 
