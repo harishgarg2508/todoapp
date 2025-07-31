@@ -1,1 +1,11 @@
 https://lucid.app/lucidchart/be468fe7-bdbf-42ee-8f6a-8a064d1d2e0e/edit?invitationId=inv_07706c5b-b16f-48f0-afd4-a3c119bea422&page=0_0#
+DATABASE_TYPE=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=harish
+DATABASE_NAME=harish
+JWT_SECRET=59d01c37ef782e9900891b3d4f7bf07af0114b26ad61642fb072f9c153367b80
+
+NEXT_PUBLIC_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_LIMIT=10
